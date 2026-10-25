@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CareerBridge • Institutional Placement & Internship Portal</title>
+  <meta name="description"
+    content="Production Institutional Placement, Tech Internship, Value Added Courses (VAC) and IQAC Accreditation Portal with Standard SQL Database.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+  <!-- Toast Notification Element -->
+  <div id="toast" role="alert" aria-live="polite"></div>
+
+  <!-- Fullscreen Login & Registration Gate -->
+  <div id="loginGate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+    <div class="gatebox">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div style="font-size:36px">🎓</div>
+        <button class="btn" style="padding:6px 12px;border-radius:50%;font-size:14px;background:rgba(255,255,255,0.08)"
+          onclick="closeAuthGate()" title="Explore Portal as Guest" aria-label="Close authentication gate">✕</button>
+      </div>
+      <h1 id="gateTitle">Career<span>Bridge</span></h1>
+      <p class="subtitle">Institutional Placement, Internship & IQAC Portal (SQL)</p>
+
+      <div class="gate-tabs">
+        <button class="btn primary" id="gateLoginTab" onclick="gateMode('login')">👤 Student Login</button>
+        <button class="btn" id="gateRegisterTab" onclick="gateMode('register')">✨ New Registration</button>
+        <button class="btn" id="gateAdminTab" onclick="gateMode('admin')">🔐 Admin Login</button>
+        <button class="btn" id="gateAdminRegisterTab" onclick="gateMode('adminRegister')">📝 Admin Registration</button>
+      </div>
+
+      <div id="gateError" class="gate-error" role="alert"></div>
+
+      <!-- 1. Student Login Form -->
+      <form id="gateLoginForm" class="gate-form active" onsubmit="gateLogin(event)">
+        <label>Email Address / Username
+          <input id="gateEmail" class="input" type="email" autocomplete="username" placeholder="student@gmail.com" required>
+        </label>
+        <label>Password
+          <input id="gatePass" class="input" type="password" autocomplete="current-password" placeholder="••••••••" required>
+        </label>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:6px 0 14px">
+          <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer">
+            <input type="checkbox" onchange="document.getElementById('gatePass').type=this.checked?'text':'password'">
+            Show Password
+          </label>
+          <a href="javascript:void(0)" onclick="toggleForgotBox()" style="font-size:12.5px;color:var(--accent);text-decoration:none">Forgot Password?</a>
+        </div>
+        <button class="btn primary" style="width:100%;margin-top:4px" type="submit">Login & Enter Portal</button>
+
+        <!-- Password Reset Box -->
+        <div id="forgotPasswordBox"
+          style="display:none;margin-top:14px;padding:12px 14px;border-radius:var(--radius-md);background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08)">
+          <div style="font-size:13px;font-weight:700;margin-bottom:4px">🔑 Password Recovery</div>
+          <div class="muted" style="font-size:12px;margin-bottom:8px">Enter registered email for secure password recovery link.</div>
+          <div style="display:flex;gap:8px">
+            <input id="forgotEmail" class="input" type="email" placeholder="student@gmail.com" style="flex:1;margin-bottom:0">
+            <button class="btn primary" type="button" onclick="sendPasswordReset()">Send Reset</button>
+          </div>
+          <div id="forgotMessage" class="muted" style="margin-top:6px;font-size:12px"></div>
+        </div>
+
+        <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--card-border);display:flex;justify-content:space-between;font-size:13px">
+          <span>New student? <a href="javascript:void(0)" onclick="gateMode('register')" style="color:var(--accent);font-weight:700;text-decoration:none">Register here</a></span>
+          <span>Incharge? <a href="javascript:void(0)" onclick="gateMode('admin')" style="color:#c084fc;font-weight:700;text-decoration:none">Admin Login</a></span>
+        </div>
+      </form>
+
+      <!-- 2. Student Register Form -->
+      <form id="gateRegisterForm" class="gate-form" onsubmit="gateRegister(event)">
+        <div class="row">
+          <label>Full Name<input id="gateName" class="input" placeholder="e.g. Gokul Ajay" required></label>
+          <label>Email Address<input id="gateRegEmail" class="input" type="email" placeholder="student@gmail.com" required></label>
+        </div>
+        <div class="row">
+          <label>Mobile Number<input id="gateMobile" class="input" placeholder="9876543210" required></label>
+          <label>Year of Study
+            <select id="gateYear" class="input" required>
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year" selected>3rd Year</option>
+              <option value="PG 1st Year">PG 1st Year</option>
+              <option value="PG 2nd Year">PG 2nd Year</option>
+            </select>
+          </label>
+        </div>
+        <div class="row">
+          <label>Password<input id="gateRegPass" class="input" type="password" minlength="6" placeholder="Min. 6 chars" required></label>
+          <label>Confirm Password<input id="gateRegConfirm" class="input" type="password" minlength="6" placeholder="Repeat password" required></label>
+        </div>
+        <label>College / University Name<input id="gateCollege" class="input" placeholder="e.g. Anna University" required></label>
+        <label>Course / Department Specialization
+          <select id="gateCourse" class="input" required>
+            <option value="">Select Department / Course</option>
+            <optgroup label="Arts – Undergraduate">
+              <option>BA English</option><option>BA Tamil</option><option>BA History</option><option>BA Economics</option><option>BA Sociology</option><option>BA Psychology</option><option>BA Political Science</option><option>BA Journalism & Mass Communication</option><option>BA Visual Communication</option>
+            </optgroup>
+            <optgroup label="Science – Undergraduate">
+              <option>BSc Mathematics</option><option>BSc Physics</option><option>BSc Chemistry</option><option>BSc Computer Science</option><option>BSc Information Technology</option><option>BSc Statistics</option><option>BSc Electronics</option><option>BSc Biotechnology</option><option>BSc Microbiology</option><option>BSc Biochemistry</option><option>BSc Data Science</option><option>BSc Artificial Intelligence</option>
+            </optgroup>
+            <optgroup label="Commerce – Undergraduate">
+              <option>BCom General</option><option>BCom Computer Applications</option><option>BCom Accounting & Finance</option><option>BCom Corporate Secretaryship</option><option>BCom Banking & Finance</option><option>BCom Information Systems</option>
+            </optgroup>
+            <optgroup label="Management & Computing – Undergraduate">
+              <option>BBA General</option><option>BBA Computer Applications</option><option>BBA Logistics</option><option>BBA Retail Management</option><option>BCA</option>
+            </optgroup>
+            <optgroup label="Postgraduate Programmes">
+              <option>MA English</option><option>MA Tamil</option><option>MA Economics</option><option>MA History</option><option>MA Psychology</option><option>MA Journalism & Mass Communication</option><option>MSc Mathematics</option><option>MSc Physics</option><option>MSc Chemistry</option><option>MSc Computer Science</option><option>MSc Information Technology</option><option>MSc Biotechnology</option><option>MSc Microbiology</option><option>MSc Data Science</option><option>MCom</option><option>MCom Computer Applications</option><option>MBA</option><option>MCA</option><option>MSW</option>
+            </optgroup>
+            <option>Other / Custom</option>
+          </select>
+        </label>
+        <button class="btn primary" style="width:100%;margin-top:6px" type="submit">Register Student Account</button>
+
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--card-border);display:flex;justify-content:space-between;font-size:13px">
+          <span>Already registered? <a href="javascript:void(0)" onclick="gateMode('login')" style="color:var(--accent);font-weight:700;text-decoration:none">Student Login</a></span>
+          <span>Placement Officer? <a href="javascript:void(0)" onclick="gateMode('admin')" style="color:#c084fc;font-weight:700;text-decoration:none">Admin Login</a></span>
+        </div>
+      </form>
+
+      <!-- 3. Admin Login Form -->
+      <form id="gateAdminForm" class="gate-form" onsubmit="adminLogin(event)">
+        <div style="padding:14px;margin-bottom:16px;border-radius:var(--radius-md);background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.3)">
+          <b style="color:#d8b4fe;font-size:13.5px">👑 Placement Officer / Incharge Access</b>
+          <div class="muted" style="font-size:12px;margin-top:6px">Enter your administrator credentials to continue.</div>
+        </div>
+        <label>Admin Email
+          <input id="adminGateEmail" class="input" type="email" autocomplete="username" placeholder="admin@college.edu" required>
+        </label>
+        <label>Admin Password
+          <input id="adminGatePass" class="input" type="password" autocomplete="current-password" placeholder="••••••••" required>
+        </label>
+        <div style="margin:6px 0 14px">
+          <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer">
+            <input type="checkbox" onchange="document.getElementById('adminGatePass').type=this.checked?'text':'password'">
+            Show Password
+          </label>
+        </div>
+        <button class="btn primary" style="width:100%;background:linear-gradient(135deg,#8b5cf6,#6366f1);border-color:rgba(168,85,247,0.4)" type="submit">
+          🔓 Login to Admin Portal
+        </button>
+
+        <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--card-border);display:flex;justify-content:space-between;font-size:13px">
+          <span>Student portal? <a href="javascript:void(0)" onclick="gateMode('login')" style="color:var(--accent);font-weight:700;text-decoration:none">Student Login</a></span>
+          <span>New admin? <a href="javascript:void(0)" onclick="gateMode('adminRegister')" style="color:var(--accent);font-weight:700;text-decoration:none">Request Access</a></span>
+        </div>
+      </form>
+
+      <!-- 4. Admin Registration Form (Pending Approval Workflow) -->
+      <form id="gateAdminRegisterForm" class="gate-form" onsubmit="submitAdminRegistration(event)">
+        <div style="padding:14px;margin-bottom:16px;border-radius:var(--radius-md);background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.3)">
+          <b style="color:#d8b4fe;font-size:13.5px">🛡️ Admin Registration — Approval Required</b>
+          <p class="muted" style="font-size:12px;margin-top:6px">Your request will remain pending until the Main Admin reviews and approves it.</p>
+        </div>
+        <label>Full Name<input id="adminRegName" class="input" required maxlength="100" placeholder="Staff full name"></label>
+        <label>Official College Email<input id="adminRegEmail" class="input" type="email" required placeholder="name@college.edu"></label>
+        <label>Requested Role
+          <select id="adminRegRole" class="input" required>
+            <option value="Placement Officer">Placement Officer</option>
+            <option value="Staff">Staff</option>
+            <option value="IQAC Officer">IQAC Officer</option>
+          </select>
+        </label>
+        <label>Password<input id="adminRegPass" class="input" type="password" required minlength="10" autocomplete="new-password" placeholder="At least 10 characters"></label>
+        <label>Confirm Password<input id="adminRegConfirm" class="input" type="password" required minlength="10" autocomplete="new-password" placeholder="Re-enter password"></label>
+        <button class="btn primary" style="width:100%;margin-top:6px" type="submit">Submit Admin Registration Request</button>
+        <p class="muted" style="font-size:12px;margin-top:12px">Already approved? <a href="javascript:void(0)" onclick="gateMode('admin')" style="color:var(--accent)">Go to Admin Login</a></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Top Sticky Navigation Bar -->
+  <nav class="nav" aria-label="Main Navigation">
+    <div class="container navin">
+      <a href="javascript:void(0)" onclick="showHome()" class="brand" aria-label="CareerBridge Homepage">
+        <span>CareerBridge</span> 🎓
+      </a>
+      <div class="navlinks" id="navlinks">
+        <button class="btn" onclick="showHome()">Home</button>
+        <button class="btn" onclick="showPlacements()">💼 Placements</button>
+        <button class="btn" onclick="showInternships()">🎯 Internships</button>
+        <button class="btn" onclick="showVAC()">📚 Value Added Courses</button>
+        <button class="btn" onclick="showResources()">🔗 Resources</button>
+        <button class="btn" onclick="openAuth('register', true)" style="border-color:rgba(110,220,255,0.4);color:var(--accent)">✨ Register</button>
+        <button class="btn" onclick="openAdminLogin()" style="border-color:rgba(168,85,247,0.4);color:#c084fc">🔐 Admin Login</button>
+        <button class="btn primary" id="loginNav" onclick="openAuth('login', true)">Student Login</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Persistent Recruitment Alert Popup -->
+  <aside id="recruitmentPopup" class="recruitment-popup" aria-label="Latest Job Offer">
+    <button class="btn" style="float:right;padding:4px 8px" onclick="closeRecruitmentPopup()" aria-label="Dismiss popup">✕</button>
+    <span class="tag" style="background:#16a34a;color:#fff;border:0">🆕 NEW RECRUITMENT</span>
+    <h3 id="recruitmentPopupTitle" style="margin:10px 0 4px">New Job Offer</h3>
+    <div id="recruitmentPopupCompany" style="font-weight:800"></div>
+    <div id="recruitmentPopupBody" class="muted" style="font-size:13px;margin-top:7px"></div>
+    <button id="recruitmentPopupBtn" class="btn primary" style="margin-top:12px" onclick="openLatestRecruitment()">View Recruitment</button>
+  </aside>
+
+  <!-- Main Application Workspace -->
+  <main class="container">
+
+    <!-- HOME SECTION -->
+    <section id="home">
+      <!-- Placement Announcement Banner -->
+      <div id="homeAnnouncement" class="announcement-box" style="display:none">
+        <div>
+          <span class="tag" style="background:#2563eb;color:#fff;border:0">📢 PLACEMENT NOTICE</span>
+          <b id="announcementTitle" style="margin-left:8px">Campus Drive Alert</b>
+          <div id="announcementBody" class="muted" style="font-size:13px;margin-top:4px">Check recent placement schedules and deadlines.</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn primary" onclick="showPlacements()">View Drives</button>
+        </div>
+      </div>
+
+      <!-- Hero Header -->
+      <div class="hero">
+        <div class="hero-tag">🎓 Comprehensive Student Placement & Career Suite</div>
+        <h1>Powering <span>Careers</span> & Accreditation.</h1>
+        <p>Your unified gateway for on-campus & off-campus <b>Placement Drives</b>, verified <b>Tech Internships</b>
+          with due-dates, <b>Free & Paid Value Added Courses (VAC)</b>, curated <b>Career Resource Hubs</b>, and
+          institutional <b>IQAC Reporting</b>.</p>
+        <div class="hero-actions">
+          <button class="btn primary" onclick="openAuth('register', true)">✨ Create Student Account</button>
+          <button class="btn" onclick="openAuth('login', true)">👤 Student Login</button>
+          <button class="btn" onclick="openAdminLogin()" style="border-color:rgba(168,85,247,0.5);color:#d8b4fe">🔐 Admin Portal</button>
+          <button class="btn" onclick="showPlacements()">💼 Explore Placements</button>
+          <button class="btn" onclick="showInternships()">🎯 Explore Internships</button>
+          <button class="btn" onclick="showVAC()">📚 Explore VACs</button>
+          <button class="btn" onclick="showResources()">🔗 Career Resources & Portals</button>
+        </div>
+      </div>
+
+      <!-- Live Statistic Cards -->
+      <div class="stats">
+        <div class="card stat-card">
+          <b id="statPlacementCount">6+</b>
+          <span class="muted">Active Placement Drives</span>
+        </div>
+        <div class="card stat-card">
+          <b id="statInternshipCount">10+</b>
+          <span class="muted">Tech Internships</span>
+        </div>
+        <div class="card stat-card">
+          <b id="statVacCount">50+</b>
+          <span class="muted">Value Added Courses (VAC)</span>
+        </div>
+        <div class="card stat-card">
+          <b>IQAC</b>
+          <span class="muted">Accreditation Compliant</span>
+        </div>
+      </div>
+
+      <!-- Welcome Banner for Logged-In Student -->
+      <div id="studentWelcome" class="card"
+        style="display:none;margin-top:20px;background:linear-gradient(135deg,rgba(40,125,255,0.18),rgba(138,77,255,0.18));border:1px solid rgba(110,220,255,0.3)">
+        <div class="muted" style="font-size:12px;letter-spacing:1px;text-transform:uppercase;font-weight:700">STUDENT DASHBOARD ACTIVE 👋</div>
+        <div id="welcomeName" style="font-size:26px;font-weight:800;margin:4px 0 6px"></div>
+        <div class="muted" style="font-size:14px">Upload internship certificates, track placement applications, and update your department details.</div>
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn primary" onclick="showDashboard()">Open Dashboard</button>
+          <button class="btn" onclick="openModal('uploadCertModal')">📜 Upload Certificate</button>
+          <button class="btn primary" onclick="openModal('uploadResumeModal')">📄 Upload Resume</button>
+        </div>
+      </div>
+
+      <!-- About Project Card -->
+      <div class="card" style="margin-top:24px">
+        <h2 style="font-size:22px;margin-bottom:8px">Runway / CareerBridge – Institutional Placement Portal</h2>
+        <p class="muted" style="margin-bottom:12px">Powered by standard SQL database architecture (`database.sql`) to
+          support college placement drives, internship certificates, Free & Paid Value Added Courses (VAC), course-wise
+          target specifications, and IQAC reporting.</p>
+        <p style="font-size:13px"><b>Database Engine:</b> Standard SQL (MySQL, MariaDB, PostgreSQL, phpMyAdmin, XAMPP compatible)</p>
+        <p style="font-size:13px;margin-top:4px"><b>Developer:</b> Gokul Ajay (<a href="mailto:gokulajay2007@gmail.com" style="color:var(--accent);text-decoration:none">gokulajay2007@gmail.com</a>)</p>
+      </div>
+    </section>
+
+    <!-- PLACEMENTS SECTION -->
+    <section id="placements" class="section hidden">
+      <div class="section-header">
+        <div>
+          <h2>💼 Placement Drives</h2>
+          <p class="muted">On-campus and pooled company placement drives with CTC packages and application deadlines.</p>
+        </div>
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="filterPlacements('All')">All Branches</button>
+          <button class="filter-btn" onclick="filterPlacements('CSE/IT')">CSE / IT</button>
+          <button class="filter-btn" onclick="filterPlacements('ECE')">ECE / Circuit</button>
+          <button class="filter-btn" onclick="filterPlacements('EEE')">EEE</button>
+          <button class="filter-btn" onclick="filterPlacements('MECH/CIVIL')">Mech / Civil</button>
+          <button class="filter-btn" onclick="filterPlacements('BCA/MCA')">BCA / MCA</button>
+          <button class="filter-btn" onclick="filterPlacements('MBA')">MBA</button>
+          <button class="filter-btn" onclick="filterPlacements('Commerce')">B.Com</button>
+        </div>
+      </div>
+      <div id="placementGrid" class="grid"></div>
+    </section>
+
+    <!-- INTERNSHIPS SECTION -->
+    <section id="internships" class="section hidden">
+      <div class="section-header">
+        <div>
+          <h2>🎯 Internship Opportunities</h2>
+          <p class="muted">Live tech internships with visible application due-dates, course specifications, and stipends.</p>
+        </div>
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="filterInternships('All')">All Groups</button>
+          <button class="filter-btn" onclick="filterInternships('Arts')">BA / Arts</button>
+          <button class="filter-btn" onclick="filterInternships('Science')">BSc / Science</button>
+          <button class="filter-btn" onclick="filterInternships('Commerce')">BCom / Commerce</button>
+          <button class="filter-btn" onclick="filterInternships('Management')">BBA / Management</button>
+          <button class="filter-btn" onclick="filterInternships('Computer')">BCA / Computer</button>
+          <button class="filter-btn" onclick="filterInternships('PG')">All PG</button>
+          <button class="filter-btn" onclick="filterInternships('Active')">Closing Soon ⏰</button>
+        </div>
+      </div>
+      <div id="internshipGrid" class="grid"></div>
+    </section>
+
+    <!-- VALUE ADDED COURSES SECTION (FREE & PAID) -->
+    <section id="vac" class="section hidden">
+      <div class="section-header">
+        <div>
+          <h2>📚 Value Added Courses (VAC)</h2>
+          <p class="muted">Enhance your professional resume with verified Free & Paid industry-accredited courses.</p>
+        </div>
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="filterVAC('All')">🌟 All VACs</button>
+          <button class="filter-btn" onclick="filterVAC('Free')">🟢 Free Courses</button>
+          <button class="filter-btn" onclick="filterVAC('Paid')">💎 Paid / Certified</button>
+        </div>
+      </div>
+      <div id="vacGrid" class="grid"></div>
+    </section>
+
+    <!-- CAREER RESOURCES SECTION -->
+    <section id="resources" class="section hidden">
+      <div class="section-header">
+        <div>
+          <h2>🔗 Career Resources & Official Portals</h2>
+          <p class="muted">Curated national internship portals, coding practice platforms, aptitude prep hubs, and resume builders.</p>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="resource-card">
+          <div class="resource-card-header">
+            <div class="icon-box">🏛️</div>
+            <div>
+              <h3 style="font-size:18px;font-weight:700">Government & National Portals</h3>
+              <p class="muted" style="font-size:12.5px">Official AICTE, NATS & Skill India portals</p>
+            </div>
+          </div>
+          <a class="resource-link-item" href="https://internship.aicte-india.org/" target="_blank" rel="noopener">
+            <span>AICTE National Internship Portal</span>
+            <span class="resource-badge">Official ↗</span>
+          </a>
+          <a class="resource-link-item" href="https://nats.education.gov.in/" target="_blank" rel="noopener">
+            <span>NATS Apprenticeship Portal</span>
+            <span class="resource-badge">Govt ↗</span>
+          </a>
+          <a class="resource-link-item" href="https://www.ncs.gov.in/" target="_blank" rel="noopener">
+            <span>National Career Service (NCS)</span>
+            <span class="resource-badge">Jobs ↗</span>
+          </a>
+          <a class="resource-link-item" href="https://swayam.gov.in/" target="_blank" rel="noopener">
+            <span>SWAYAM / NPTEL Online Courses</span>
+            <span class="resource-badge">Credit ↗</span>
+          </a>
+        </div>
+
+        <div class="resource-card">
+          <div class="resource-card-header">
+            <div class="icon-box">💻</div>
+            <div>
+              <h3 style="font-size:18px;font-weight:700">Coding, Aptitude & Interview Prep</h3>
+              <p class="muted" style="font-size:12.5px">Practice DSA, SQL, and placement mock tests</p>
+            </div>
+          </div>
+          <a class="resource-link-item" href="https://leetcode.com/" target="_blank" rel="noopener">
+            <span>LeetCode Coding & SQL Practice</span>
+            <span class="resource-badge">DSA ↗</span>
+          </a>
+          <a class="resource-link-item" href="https://www.hackerrank.com/dashboard" target="_blank" rel="noopener">
+            <span>HackerRank Skill Certifications</span>
+            <span class="resource-badge">Coding ↗</span>
+          </a>
+          <a class="resource-link-item" href="https://www.indiabix.com/" target="_blank" rel="noopener">
+            <span>IndiaBIX Quantitative & Verbal Aptitude</span>
+            <span class="resource-badge">Aptitude ↗</span>
+          </a>
+          <a class="resource-link-item" href="https://www.geeksforgeeks.org/" target="_blank" rel="noopener">
+            <span>GeeksforGeeks Placement Archives</span>
+            <span class="resource-badge">Prep ↗</span>
+          </a>
+        </div>
+
+        <div class="resource-card">
+          <div class="resource-card-header">
+            <div class="icon-box">📄</div>
+            <div>
+              <h3 style="font-size:18px;font-weight:700">Resume, LinkedIn & Job Boards</h3>
+              <p class="muted" style="font-size:12.5px">ATS-friendly resume tools & off-campus drives</p>
+            </div>
+          </div>
+          <a class="resource-link-item" href="https://www.linkedin.com/jobs/" target="_blank" rel="noopener">
+            <span>LinkedIn Jobs & Internships</span>
+            <span class="resource-badge">Network ↗</span>
+          </a>
+          <a class="resource-link-item" href="https://internshala.com/" target="_blank" rel="noopener">
+            <span>Internshala Verified Internships</span>
+            <span class="resource-badge">Intern ↗</span>
+          </a>
+          <a class="resource-link-item" href="https://www.overleaf.com/gallery/tagged/cv" target="_blank" rel="noopener">
+            <span>Overleaf ATS-Friendly Resume Templates</span>
+            <span class="resource-badge">Resume ↗</span>
+          </a>
+          <a class="resource-link-item" href="https://roadmap.sh/" target="_blank" rel="noopener">
+            <span>Developer & Career Roadmaps (roadmap.sh)</span>
+            <span class="resource-badge">Guide ↗</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- MAIN INCHARGE & PLACEMENT OFFICER ADMIN PANEL -->
+    <section id="adminPanel" class="section hidden">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+          <div>
+            <h2>🔐 Institutional Administration Suite (SQL DB)</h2>
+            <div id="adminWelcome" style="font-size:20px;font-weight:800;margin-top:4px">Welcome, Gokul Ajay (Incharge & Placement Officer)</div>
+          </div>
+          <button class="btn danger" onclick="adminLogout()">Admin Logout</button>
+        </div>
+
+        <!-- Admin Navigation Tabs (All 10 Identified in Master Prompt) -->
+        <div class="admin-nav" role="tablist">
+          <button class="admin-tab active" onclick="switchAdminTab('students')">👥 Registered Students</button>
+          <button class="admin-tab" id="adminRequestsTabButton" onclick="switchAdminTab('adminRequests')">🛡️ Admin Registration Requests <span id="adminRequestCount" class="tag" style="margin-left:4px">0</span></button>
+          <button class="admin-tab" onclick="switchAdminTab('internApps')">🎯 Internship Applications</button>
+          <button class="admin-tab" onclick="switchAdminTab('placementApps')">💼 Placement Applications</button>
+          <button class="admin-tab" onclick="switchAdminTab('recruitmentManager')">🆕 Recruitment Manager</button>
+          <button class="admin-tab" onclick="switchAdminTab('feedback')">🔔 Student Feedback <span id="adminFeedbackBadge" class="tag" style="margin-left:4px;padding:2px 7px;background:#ef4444;color:#fff;border:0;display:none">0</span></button>
+          <button class="admin-tab" onclick="switchAdminTab('certVerify')">📜 Certificate Verification Queue</button>
+          <button class="admin-tab" onclick="switchAdminTab('crudManager')">⚡ Admin CRUD Controls</button>
+          <button class="admin-tab" onclick="switchAdminTab('officerBroadcast')">✉️ Placement Officer Broadcast</button>
+          <button class="admin-tab" onclick="switchAdminTab('iqacReport')">🏛️ IQAC Accreditation Report</button>
+        </div>
+
+        <!-- 1. Registered Students Tab -->
+        <div id="adminTab-students" class="admin-subtab">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px;flex-wrap:wrap">
+            <h3>Registered Student Directory</h3>
+            <span id="adminStudentCountBadge" class="tag">0 Students</span>
+          </div>
+          <div class="card" style="margin-bottom:12px;padding:14px">
+            <h4 style="margin:0 0 10px">🎯 Student Marks & Result Filters</h4>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
+              <input id="adminStudentSearch" class="input" placeholder="🔎 Search name / email / college" oninput="renderAdminStudents()">
+              <select id="adminStudentMarkFilter" class="input" onchange="renderAdminStudents()">
+                <option value="all">All Marks</option>
+                <option value="40plus">40% & Above</option>
+                <option value="50plus">50% & Above</option>
+                <option value="60plus">60% & Above</option>
+                <option value="70plus">70% & Above</option>
+                <option value="80plus">80% & Above</option>
+                <option value="90plus">90% & Above</option>
+                <option value="below40">Below 40%</option>
+                <option value="missing">Marks Not Entered</option>
+              </select>
+              <select id="adminStudentResultFilter" class="input" onchange="renderAdminStudents()">
+                <option value="all">All Results</option>
+                <option value="pass">✅ Pass Students</option>
+                <option value="arrear">⚠️ Arrear Students</option>
+                <option value="noarrear">No Arrear</option>
+              </select>
+              <select id="adminStudentYearFilter" class="input" onchange="renderAdminStudents()">
+                <option value="all">All Years</option>
+                <option>1st Year</option><option>2nd Year</option><option>3rd Year</option>
+                <option>PG 1st Year</option><option>PG 2nd Year</option>
+              </select>
+              <select id="adminStudentDeptFilter" class="input" onchange="renderAdminStudents()">
+                <option value="all">All Departments / Courses</option>
+                <optgroup label="Arts – UG"><option value="BA English">BA English</option><option value="BA Tamil">BA Tamil</option><option value="BA History">BA History</option><option value="BA Economics">BA Economics</option><option value="BA Sociology">BA Sociology</option><option value="BA Psychology">BA Psychology</option><option value="BA Political Science">BA Political Science</option><option value="BA Journalism & Mass Communication">BA Journalism & Mass Communication</option><option value="BA Visual Communication">BA Visual Communication</option></optgroup>
+                <optgroup label="Science – UG"><option value="BSc Mathematics">BSc Mathematics</option><option value="BSc Physics">BSc Physics</option><option value="BSc Chemistry">BSc Chemistry</option><option value="BSc Computer Science">BSc Computer Science</option><option value="BSc Information Technology">BSc Information Technology</option><option value="BSc Statistics">BSc Statistics</option><option value="BSc Electronics">BSc Electronics</option><option value="BSc Biotechnology">BSc Biotechnology</option><option value="BSc Microbiology">BSc Microbiology</option><option value="BSc Biochemistry">BSc Biochemistry</option><option value="BSc Data Science">BSc Data Science</option><option value="BSc Artificial Intelligence">BSc Artificial Intelligence</option></optgroup>
+                <optgroup label="Commerce – UG"><option value="BCom General">BCom General</option><option value="BCom Computer Applications">BCom Computer Applications</option><option value="BCom Accounting & Finance">BCom Accounting & Finance</option><option value="BCom Corporate Secretaryship">BCom Corporate Secretaryship</option><option value="BCom Banking & Finance">BCom Banking & Finance</option><option value="BCom Information Systems">BCom Information Systems</option></optgroup>
+                <optgroup label="Management / Computer – UG"><option value="BBA General">BBA General</option><option value="BBA Computer Applications">BBA Computer Applications</option><option value="BBA Logistics">BBA Logistics</option><option value="BBA Retail Management">BBA Retail Management</option><option value="BCA">BCA</option></optgroup>
+                <optgroup label="Postgraduate"><option value="MA English">MA English</option><option value="MA Tamil">MA Tamil</option><option value="MA Economics">MA Economics</option><option value="MA History">MA History</option><option value="MA Psychology">MA Psychology</option><option value="MA Journalism & Mass Communication">MA Journalism & Mass Communication</option><option value="MSc Mathematics">MSc Mathematics</option><option value="MSc Physics">MSc Physics</option><option value="MSc Chemistry">MSc Chemistry</option><option value="MSc Computer Science">MSc Computer Science</option><option value="MSc Information Technology">MSc Information Technology</option><option value="MSc Biotechnology">MSc Biotechnology</option><option value="MSc Microbiology">MSc Microbiology</option><option value="MSc Data Science">MSc Data Science</option><option value="MCom">MCom</option><option value="MCom Computer Applications">MCom Computer Applications</option><option value="MBA">MBA</option><option value="MCA">MCA</option><option value="MSW">MSW</option></optgroup>
+                <option value="Other / Custom">Other / Custom</option>
+              </select>
+              <button class="btn" onclick="resetAdminStudentFilters()">↺ Reset Filters</button>
+            </div>
+            <div class="muted" style="font-size:12px;margin-top:8px">Use any combination of filters. Enter subject-wise marks in each student profile to automatically compute arrears and percentage.</div>
+          </div>
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>#</th><th>Name</th><th>Email</th><th>Department / Course</th><th>College</th><th>Year</th><th>Mark %</th><th>Result</th><th>Mobile</th><th>Profile</th>
+                </tr>
+              </thead>
+              <tbody id="adminStudentList"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 2. Admin Registration Approval Queue -->
+        <div id="adminTab-adminRequests" class="admin-subtab hidden">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+            <h3>Admin Registration Requests Queue</h3>
+            <span class="tag">Main Admin Review Required</span>
+          </div>
+          <p class="muted" style="font-size:13px;margin-bottom:14px">Review each administrator account request. Approval updates the SQL database and grants access based on assigned role.</p>
+          <div id="adminRequestsList"></div>
+        </div>
+
+        <!-- 3. Internship Applications Tab -->
+        <div id="adminTab-internApps" class="admin-subtab hidden">
+          <h3>Internship Applications & Status Controller</h3>
+          <p class="muted" style="font-size:13px;margin-bottom:10px">Review cover statements and update application status (Applied, Shortlisted, Selected, Rejected).</p>
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Student</th><th>Email</th><th>Course</th><th>Internship</th><th>Company</th><th>Date</th><th>Status Action</th><th>Response Statement</th>
+                </tr>
+              </thead>
+              <tbody id="adminInternAppList"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 4. Placement Applications Tab -->
+        <div id="adminTab-placementApps" class="admin-subtab hidden">
+          <h3>Campus Placement Applications</h3>
+          <p class="muted" style="font-size:13px;margin-bottom:10px">Drive applications submitted by graduating students.</p>
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Student</th><th>Email</th><th>Department</th><th>Company</th><th>Role</th><th>Status Action</th><th>Resume / Note</th>
+                </tr>
+              </thead>
+              <tbody id="adminPlacementAppList"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 5. Recruitment Manager Tab -->
+        <div id="adminTab-recruitmentManager" class="admin-subtab hidden">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+            <div>
+              <h3>🆕 Recruitment Manager</h3>
+              <p class="muted" style="font-size:13px">Post recruitment alerts visible on the front page and in the persistent alert popup.</p>
+            </div>
+            <button class="btn primary" onclick="openNewRecruitmentModal()">➕ New Recruitment</button>
+          </div>
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead><tr><th>Company</th><th>Job / Role</th><th>Offer</th><th>Eligibility</th><th>Posted</th><th>Action</th></tr></thead>
+              <tbody id="adminRecruitmentList"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 6. Student Feedback & Notifications Tab -->
+        <div id="adminTab-feedback" class="admin-subtab hidden">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+            <div>
+              <h3>🔔 Student Feedback & Notifications</h3>
+              <p class="muted" style="font-size:13px">New feedback from students appears here as an admin notification badge.</p>
+            </div>
+            <button class="btn" onclick="markAllFeedbackRead()">✓ Mark All Read</button>
+          </div>
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead><tr><th>Status</th><th>Student</th><th>Email</th><th>Category</th><th>Feedback</th><th>Date</th><th>Action</th></tr></thead>
+              <tbody id="adminFeedbackList"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 7. Certificate Verification Queue Tab -->
+        <div id="adminTab-certVerify" class="admin-subtab hidden">
+          <h3>📜 Uploaded Certificate Verification Queue</h3>
+          <p class="muted" style="font-size:13px;margin-bottom:10px">Verify student uploaded internship & VAC certificates for institutional IQAC credit.</p>
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Student</th><th>Email</th><th>Certificate Title</th><th>Organization</th><th>Issue Date</th><th>Document Preview</th><th>Verification Action</th>
+                </tr>
+              </thead>
+              <tbody id="adminCertVerifyList"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 8. Admin CRUD Controls Tab -->
+        <div id="adminTab-crudManager" class="admin-subtab hidden">
+          <h3>⚡ Admin Content & Drive Controls</h3>
+          <p class="muted" style="font-size:13px;margin-bottom:16px">Add new opportunities with deadlines, course specifications, and VAC details into standard SQL.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn primary" onclick="openModal('addPlacementModal')">➕ Post New Placement Drive</button>
+            <button class="btn primary" onclick="openNewRecruitmentModal()">🆕 New Recruitment</button>
+            <button class="btn primary" onclick="openModal('addInternshipModal')">➕ Post New Internship with Due Date</button>
+            <button class="btn primary" onclick="openModal('addVacModal')">➕ Add New VAC Course (Free/Paid)</button>
+          </div>
+        </div>
+
+        <!-- 9. Placement Officer Broadcast Tab -->
+        <div id="adminTab-officerBroadcast" class="admin-subtab hidden">
+          <h3>✉️ Placement Officer Announcement & Mail Broadcaster</h3>
+          <p class="muted" style="font-size:13px;margin-bottom:14px">Broadcast notices to student dashboards and launch mail client with target recipient list.</p>
+          <div class="card" style="background:rgba(255,255,255,0.03)">
+            <label>Target Audience / Branch
+              <select id="broadcastTarget" class="input">
+                <option value="All Branches">All Enrolled Students</option>
+                <option value="B.Tech Computer Science & Engineering (CSE)">B.Tech CSE Only</option>
+                <option value="B.Tech Information Technology (IT)">B.Tech IT Only</option>
+                <option value="B.Tech Electronics & Communication (ECE)">B.Tech ECE Only</option>
+                <option value="B.Tech Mechanical Engineering (MECH)">B.Tech MECH Only</option>
+                <option value="Shortlisted Students">Shortlisted Candidates Only</option>
+              </select>
+            </label>
+            <label>Announcement / Circular Title
+              <input id="broadcastTitle" class="input" placeholder="e.g. Mandatory Placement Drive Interview on Monday">
+            </label>
+            <label>Broadcast Message Body
+              <textarea id="broadcastBody" class="input" rows="4" placeholder="Enter drive details, interview timings, reporting venue..."></textarea>
+            </label>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn primary" onclick="postInPortalBroadcast()">📢 Publish Dashboard Notice</button>
+              <button class="btn" onclick="sendMailBroadcast()">✉️ Open Email Client (Filtered Mailto)</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 10. IQAC Administrator Report Tab -->
+        <div id="adminTab-iqacReport" class="admin-subtab hidden">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+            <div>
+              <h3>🏛️ Internal Quality Assurance Cell (IQAC) Report</h3>
+              <p class="muted" style="font-size:13px">Institutional Placement & Internship Compliance Summary for NAAC / NBA Audits.</p>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn success" onclick="exportIqacCsv()">📥 Export to CSV</button>
+              <button class="btn" onclick="window.print()">🖨️ Print Audit Report</button>
+            </div>
+          </div>
+
+          <!-- Quick Metrics -->
+          <div class="stats" style="margin-top:10px">
+            <div class="card stat-card">
+              <b id="iqacTotalStudents">0</b>
+              <span class="muted">Enrolled Students</span>
+            </div>
+            <div class="card stat-card">
+              <b id="iqacTotalInternships">0</b>
+              <span class="muted">Internships Applied</span>
+            </div>
+            <div class="card stat-card">
+              <b id="iqacTotalPlacements">0</b>
+              <span class="muted">Placements Secured</span>
+            </div>
+            <div class="card stat-card">
+              <b id="iqacTotalCerts">0</b>
+              <span class="muted">Verified Certificates</span>
+            </div>
+          </div>
+
+          <!-- Department-wise IQAC Summary Table -->
+          <h4 style="margin:20px 0 10px">Course & Department-Wise Performance Summary</h4>
+          <div class="table-scroll">
+            <table class="data-table" id="iqacReportTable">
+              <thead>
+                <tr>
+                  <th>Department / Course</th>
+                  <th>Total Registered</th>
+                  <th>Internships Done</th>
+                  <th>Placements Secured</th>
+                  <th>Verified Certificates</th>
+                  <th>Placement Rate (%)</th>
+                </tr>
+              </thead>
+              <tbody id="iqacDepartmentSummary"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- STUDENT DASHBOARD SECTION -->
+    <section id="dashboard" class="dashboard section hidden">
+      <div class="card" style="margin-bottom:20px">
+        <div class="navlinks">
+          <button class="btn primary" onclick="showDashboard()">Dashboard Home</button>
+          <button class="btn" onclick="showPlacements()">Find Placements</button>
+          <button class="btn" onclick="showInternships()">Find Internships</button>
+          <button class="btn" onclick="showVAC()">Explore VACs</button>
+          <button class="btn" onclick="openModal('uploadCertModal')">📜 Upload Certificate</button>
+          <button class="btn danger" onclick="logout()">Logout</button>
+        </div>
+      </div>
+
+      <!-- Student Profile Card -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+          <h2>👋 Student Profile & Placement Status</h2>
+          <span class="tag" style="background:#10b981;color:#fff;border:0">Verified SQL Student Profile</span>
+        </div>
+        <div id="studentFullDetails"></div>
+      </div>
+
+      <!-- Course & Year Editor -->
+      <div class="student-section card">
+        <h3>✏️ Edit Department & Academic Year</h3>
+        <div class="row">
+          <label>Department / Course Specialization
+            <select id="editStudentCourse" class="input">
+              <option value="">Select Department / Course</option>
+              <optgroup label="Arts – UG"><option>BA English</option><option>BA Tamil</option><option>BA History</option><option>BA Economics</option><option>BA Sociology</option><option>BA Psychology</option><option>BA Political Science</option><option>BA Journalism & Mass Communication</option><option>BA Visual Communication</option></optgroup>
+              <optgroup label="Science – UG"><option>BSc Mathematics</option><option>BSc Physics</option><option>BSc Chemistry</option><option>BSc Computer Science</option><option>BSc Information Technology</option><option>BSc Statistics</option><option>BSc Electronics</option><option>BSc Biotechnology</option><option>BSc Microbiology</option><option>BSc Biochemistry</option><option>BSc Data Science</option><option>BSc Artificial Intelligence</option></optgroup>
+              <optgroup label="Commerce – UG"><option>BCom General</option><option>BCom Computer Applications</option><option>BCom Accounting & Finance</option><option>BCom Corporate Secretaryship</option><option>BCom Banking & Finance</option><option>BCom Information Systems</option></optgroup>
+              <optgroup label="Management / Computer – UG"><option>BBA General</option><option>BBA Computer Applications</option><option>BBA Logistics</option><option>BBA Retail Management</option><option>BCA</option></optgroup>
+              <optgroup label="Postgraduate"><option>MA English</option><option>MA Tamil</option><option>MA Economics</option><option>MA History</option><option>MA Psychology</option><option>MA Journalism & Mass Communication</option><option>MSc Mathematics</option><option>MSc Physics</option><option>MSc Chemistry</option><option>MSc Computer Science</option><option>MSc Information Technology</option><option>MSc Biotechnology</option><option>MSc Microbiology</option><option>MSc Data Science</option><option>MCom</option><option>MCom Computer Applications</option><option>MBA</option><option>MCA</option><option>MSW</option></optgroup>
+              <option>Other / Custom</option>
+            </select>
+          </label>
+          <label>Year of Study
+            <select id="editStudentYear" class="input">
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year">3rd Year</option>
+              <option value="PG 1st Year">PG 1st Year</option>
+              <option value="PG 2nd Year">PG 2nd Year</option>
+            </select>
+          </label>
+        </div>
+        <button class="btn primary" onclick="saveStudentCourseDetails()">💾 Save Updated Department Details</button>
+        <div id="courseEditMessage" class="muted" style="margin-top:8px;font-size:13px"></div>
+      </div>
+
+      <!-- Uploaded Internship Certificates Gallery -->
+      <div class="student-section card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+          <h3>📜 Uploaded Internship & VAC Certificates</h3>
+          <button class="btn primary" onclick="openModal('uploadCertModal')">➕ Upload New Certificate</button>
+        </div>
+        <div id="studentCertList"></div>
+      </div>
+
+      <!-- Resume Card -->
+      <div class="student-section card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+          <h3>📄 Resume</h3>
+          <button class="btn primary" onclick="openModal('uploadResumeModal')">➕ Upload Resume</button>
+        </div>
+        <div id="studentResumeDetails" class="muted">No resume uploaded yet.</div>
+      </div>
+
+      <!-- Marksheet Card -->
+      <div class="student-section card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+          <h3>📊 Marksheet</h3>
+          <button class="btn primary" onclick="openModal('uploadMarksheetModal')">➕ Upload Marksheet</button>
+        </div>
+        <div id="studentMarksheetDetails" class="muted">No marksheet uploaded yet.</div>
+      </div>
+
+      <!-- Completed VACs -->
+      <div class="student-section card">
+        <h3>🏆 Completed Value Added Courses (VAC)</h3>
+        <div id="completedCourseList"></div>
+      </div>
+
+      <!-- Placement & Internship Applications Trackers -->
+      <div class="student-section card">
+        <h3>💼 Campus Placement Applications</h3>
+        <div id="studentPlacementActivityDetails"></div>
+      </div>
+
+      <div class="student-section card">
+        <h3>🎯 Internship Applications & Responses</h3>
+        <div id="studentActivityDetails"></div>
+      </div>
+
+      <!-- Student Feedback -->
+      <div class="student-section card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+          <div>
+            <h3>💬 Student Feedback</h3>
+            <p class="muted" style="font-size:12px;margin:3px 0 0">Send feedback directly to the College / Placement Admin.</p>
+          </div>
+          <button class="btn primary" onclick="openModal('studentFeedbackModal')">➕ Give Feedback</button>
+        </div>
+        <div id="studentFeedbackStatus" class="muted" style="font-size:12px"></div>
+      </div>
+
+      <!-- Application Progress Status Overview -->
+      <div class="student-section card">
+        <h3>✅ Application Status Overview</h3>
+        <div id="studentProgressDetails"></div>
+      </div>
+
+      <div style="margin-top:24px">
+        <button class="btn danger" onclick="logout()">Logout of Student Account</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:24px;margin-bottom:28px;text-align:left">
+        <div style="max-width:380px">
+          <div class="brand" style="font-size:20px;margin-bottom:8px"><span>CareerBridge</span> 🎓</div>
+          <p class="muted" style="font-size:13px;line-height:1.6">Institutional Student Placement, Internship, VAC Course & IQAC Accreditation Suite powered by Standard SQL Database architecture.</p>
+        </div>
+        <div style="display:flex;gap:36px;flex-wrap:wrap">
+          <div>
+            <b style="font-size:13px;color:#fff;display:block;margin-bottom:8px">STUDENT ACCESS</b>
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:13px">
+              <a href="javascript:void(0)" onclick="openAuth('login', true)" style="color:var(--text-muted);text-decoration:none">👤 Student Login</a>
+              <a href="javascript:void(0)" onclick="openAuth('register', true)" style="color:var(--accent);text-decoration:none">✨ New Registration</a>
+              <a href="javascript:void(0)" onclick="showDashboard()" style="color:var(--text-muted);text-decoration:none">📊 Student Dashboard</a>
+            </div>
+          </div>
+          <div>
+            <b style="font-size:13px;color:#fff;display:block;margin-bottom:8px">ADMINISTRATION</b>
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:13px">
+              <a href="javascript:void(0)" onclick="openAdminLogin()" style="color:#d8b4fe;text-decoration:none">🔐 Placement Officer Login</a>
+              <a href="javascript:void(0)" onclick="openAdminLogin()" style="color:var(--text-muted);text-decoration:none">📜 Certificate Verification</a>
+              <a href="javascript:void(0)" onclick="openAdminLogin()" style="color:var(--text-muted);text-decoration:none">🏛️ IQAC NAAC Report</a>
+            </div>
+          </div>
+          <div>
+            <b style="font-size:13px;color:#fff;display:block;margin-bottom:8px">OPPORTUNITIES</b>
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:13px">
+              <a href="javascript:void(0)" onclick="showPlacements()" style="color:var(--text-muted);text-decoration:none">💼 Placement Drives</a>
+              <a href="javascript:void(0)" onclick="showInternships()" style="color:var(--text-muted);text-decoration:none">🎯 Tech Internships</a>
+              <a href="javascript:void(0)" onclick="showVAC()" style="color:var(--text-muted);text-decoration:none">📚 Value Added Courses</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--card-border);padding-top:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:12.5px;color:#7b8fa8">
+        <div>CareerBridge • Institutional Placement & Accreditation Portal • Standard SQL Architecture.</div>
+        <div>Incharge: <b>Gokul Ajay</b> (<a href="mailto:gokulajay2007@gmail.com" style="color:var(--accent);text-decoration:none">gokulajay2007@gmail.com</a>) • 2026</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODALS -->
+
+  <!-- 1. Certificate Upload Modal -->
+  <div class="modal" id="uploadCertModal">
+    <div class="modalbox">
+      <button class="btn" style="float:right;padding:6px 12px" type="button" onclick="closeModal('uploadCertModal')">✕</button>
+      <h2>📜 Upload Completed Certificate</h2>
+      <p class="muted" style="margin-bottom:16px">Upload your verified internship or VAC completion certificate for IQAC institutional credit.</p>
+      <form onsubmit="submitCertificate(event)">
+        <label>Certificate / Training Title
+          <input id="certTitle" class="input" placeholder="e.g. Web Development Internship Certificate" required>
+        </label>
+        <div class="row">
+          <label>Issuing Organization / Company
+            <input id="certOrg" class="input" placeholder="e.g. TechNova Solutions / Cisco" required>
+          </label>
+          <label>Category
+            <select id="certCategory" class="input">
+              <option value="Internship">Internship Certificate</option>
+              <option value="VAC">Value Added Course (VAC)</option>
+              <option value="Placement Offer">Placement Offer Letter</option>
+            </select>
+          </label>
+        </div>
+        <div class="row">
+          <label>Date of Issue
+            <input id="certIssueDate" class="input" type="date" required>
+          </label>
+          <label>Credential ID / Verification URL
+            <input id="certCredId" class="input" placeholder="e.g. CERT-2026-9812">
+          </label>
+        </div>
+        <label>Upload Certificate Document (PDF, PNG, JPG)
+          <input id="certFile" class="input" type="file" accept="image/*,.pdf" required onchange="handleCertFileSelect(event)">
+        </label>
+        <div id="certFilePreview" style="margin-bottom:14px;display:none;text-align:center">
+          <img id="certPreviewImg" src="" style="max-height:160px;border-radius:8px;border:1px solid #475569" alt="Preview">
+        </div>
+        <button class="btn primary" style="width:100%" type="submit">Upload Certificate</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Resume Upload Modal -->
+  <div class="modal" id="uploadResumeModal">
+    <div class="modalbox">
+      <button class="btn" style="float:right;padding:6px 12px" type="button" onclick="closeModal('uploadResumeModal')">✕</button>
+      <h2>📄 Upload Resume</h2>
+      <p class="muted" style="margin-bottom:16px">Upload your latest resume for placement and internship applications.</p>
+      <form onsubmit="submitResume(event)">
+        <label>Resume Document (PDF, DOCX)
+          <input id="resumeFile" class="input" type="file" accept=".pdf,.doc,.docx,application/pdf" required>
+        </label>
+        <button class="btn primary" style="width:100%" type="submit">Save Resume</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Marksheet Upload Modal -->
+  <div class="modal" id="uploadMarksheetModal">
+    <div class="modalbox">
+      <button class="btn" style="float:right;padding:6px 12px" type="button" onclick="closeModal('uploadMarksheetModal')">✕</button>
+      <h2>📊 Upload Marksheet</h2>
+      <p class="muted" style="margin-bottom:16px">Upload your latest academic marksheet for verification.</p>
+      <form onsubmit="submitMarksheet(event)">
+        <label>Marksheet Document (PDF, JPG, PNG)
+          <input id="marksheetFile" class="input" type="file" accept=".pdf,image/*,application/pdf" required>
+        </label>
+        <button class="btn primary" style="width:100%" type="submit">Save Marksheet</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Fullscreen Certificate Preview Modal -->
+  <div class="modal" id="viewCertModal">
+    <div class="modalbox" style="text-align:center;max-width:750px">
+      <button class="btn" style="float:right;padding:6px 12px" onclick="closeModal('viewCertModal')">✕</button>
+      <h3 id="viewCertTitle" style="margin-bottom:12px">Certificate Preview</h3>
+      <img id="viewCertImg" src="" style="max-width:100%;max-height:65vh;border-radius:12px;border:1px solid rgba(255,255,255,0.2)" alt="Certificate preview">
+      <iframe id="viewCertPdf" src="" style="display:none;width:100%;height:65vh;border-radius:12px;border:1px solid rgba(255,255,255,0.2);background:#fff"></iframe>
+      <div id="viewCertMeta" class="muted" style="margin-top:12px;font-size:13px"></div>
+      <div style="margin-top:12px">
+        <a id="viewCertDownloadBtn" class="btn primary" href="#" download="certificate" target="_blank" rel="noopener">⬇ Open / Download File</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Student Feedback Modal -->
+  <div class="modal" id="studentFeedbackModal">
+    <div class="modalbox">
+      <button class="btn" style="float:right;padding:6px 12px" onclick="closeModal('studentFeedbackModal')">✕</button>
+      <h2>💬 Student Feedback</h2>
+      <p class="muted" style="margin-bottom:14px">Your feedback will notify the placement administrator.</p>
+      <form onsubmit="submitStudentFeedback(event)">
+        <label>Feedback Category
+          <select id="feedbackCategory" class="input" required>
+            <option value="Placement">Placement / Recruitment</option>
+            <option value="Internship">Internship</option>
+            <option value="Portal">Portal / Technical</option>
+            <option value="College">College / Administration</option>
+            <option value="Suggestion">Suggestion</option>
+            <option value="Other">Other</option>
+          </select>
+        </label>
+        <label>Your Feedback
+          <textarea id="feedbackMessage" class="input" rows="5" maxlength="1000" placeholder="Write your feedback or suggestion..." required></textarea>
+        </label>
+        <button class="btn primary" style="width:100%;margin-top:8px" type="submit">📤 Send Feedback to Admin</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 6. Admin Student Profile Modal -->
+  <div class="modal" id="adminStudentProfileModal">
+    <div class="modalbox" style="max-width:900px;max-height:90vh;overflow:auto">
+      <button class="btn" style="float:right;padding:6px 12px" onclick="closeModal('adminStudentProfileModal')">✕</button>
+      <h2>👤 Student Profile</h2>
+      <div id="adminStudentProfileContent"></div>
+    </div>
+  </div>
+
+  <!-- 7. Apply for Placement Drive Modal -->
+  <div class="modal" id="applyPlacementModal">
+    <div class="modalbox">
+      <button class="btn" style="float:right;padding:6px 12px" onclick="closeModal('applyPlacementModal')">✕</button>
+      <h2>💼 Apply for Placement Drive</h2>
+      <p id="applyPlacementName" class="muted" style="margin-bottom:16px;font-weight:600;color:#86efac"></p>
+      <form onsubmit="submitPlacementApplication(event)">
+        <div class="row">
+          <label>Student Name<input id="apName" class="input" readonly></label>
+          <label>Registered Email<input id="apEmail" class="input" readonly></label>
+        </div>
+        <div class="row">
+          <label>Department / Branch<input id="apCourse" class="input" readonly></label>
+          <label>Academic Year<input id="apYear" class="input" readonly></label>
+        </div>
+        <label>Candidate Profile Summary / CGPA Note
+          <textarea id="apResumeNote" class="input" rows="4" required placeholder="State your CGPA, key projects, and readiness for the placement drive..."></textarea>
+        </label>
+        <button class="btn primary" style="width:100%;margin-top:8px" type="submit">Submit Placement Application</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 8. Apply for Internship Modal -->
+  <div class="modal" id="applyInternModal">
+    <div class="modalbox">
+      <button class="btn" style="float:right;padding:6px 12px" onclick="closeModal('applyInternModal')">✕</button>
+      <h2>🎯 Apply for Internship</h2>
+      <p id="applyInternshipName" class="muted" style="margin-bottom:16px;font-weight:600;color:var(--accent)"></p>
+      <form onsubmit="submitInternApplication(event)">
+        <div class="row">
+          <label>Full Name<input id="aiName" class="input" readonly></label>
+          <label>Email<input id="aiEmail" class="input" readonly></label>
+        </div>
+        <div class="row">
+          <label>College / University<input id="aiCollege" class="input" readonly></label>
+          <label>Course / Department<input id="aiCourse" class="input" readonly></label>
+        </div>
+        <label>Statement of Interest / Cover Note
+          <textarea id="aiResponse" class="input" rows="4" required placeholder="Explain your interest and relevant skills..."></textarea>
+        </label>
+        <button class="btn primary" style="width:100%;margin-top:8px" type="submit">Submit Internship Application</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 9. Admin: Add Placement Modal -->
+  <div class="modal" id="addPlacementModal">
+    <div class="modalbox">
+      <button class="btn" style="float:right;padding:6px 12px" onclick="closeModal('addPlacementModal')">✕</button>
+      <h2>➕ Post New Placement Drive</h2>
+      <form onsubmit="adminAddPlacement(event)">
+        <div class="row">
+          <label>Company Name<input id="npCompany" class="input" required placeholder="e.g. TCS Digital"></label>
+          <label>Job Role<input id="npRole" class="input" required placeholder="e.g. System Engineer"></label>
+        </div>
+        <div class="row">
+          <label>Package / CTC<input id="npCtc" class="input" required placeholder="e.g. ₹7.5 - 9.0 LPA"></label>
+          <label>Location<input id="npLoc" class="input" required placeholder="e.g. Chennai / Bangalore / Hybrid"></label>
+        </div>
+        <div class="row">
+          <label>Target Course / Branch
+            <select id="npSpec" class="input">
+              <option value="All Branches">All Branches</option>
+              <option value="CSE/IT">CSE & IT</option>
+              <option value="ECE">ECE / Circuit</option>
+              <option value="EEE">EEE</option>
+              <option value="MECH/CIVIL">Mechanical & Civil</option>
+              <option value="BCA/MCA">BCA / MCA</option>
+              <option value="MBA">MBA / Management</option>
+              <option value="Commerce">B.Com / Commerce</option>
+            </select>
+          </label>
+          <label>Eligibility Criteria<input id="npElig" class="input" required placeholder="e.g. Min 65% in 10th, 12th & Degree"></label>
+        </div>
+        <div class="row">
+          <label>Drive Date<input id="npDriveDate" class="input" type="date" required></label>
+          <label>Application Due Date<input id="npDueDate" class="input" type="date" required></label>
+        </div>
+        <button class="btn primary" style="width:100%" type="submit">Publish Placement Drive</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 10. Admin: New / Edit Recruitment Modal -->
+  <div class="modal" id="recruitmentModal">
+    <div class="modalbox">
+      <button class="btn" style="float:right;padding:6px 12px" onclick="closeModal('recruitmentModal')">✕</button>
+      <h2 id="recruitmentModalTitle">🆕 New Recruitment</h2>
+      <p class="muted" style="font-size:13px;margin-bottom:16px">This job offer will appear on the front page as a recruitment notification and in the alert popup.</p>
+      <form onsubmit="saveRecruitment(event)">
+        <input type="hidden" id="recruitmentEditId">
+        <div class="row">
+          <label>Company Name<input id="nrCompany" class="input" required placeholder="e.g. Infosys"></label>
+          <label>Job / Role<input id="nrRole" class="input" required placeholder="e.g. Graduate Engineer Trainee"></label>
+        </div>
+        <div class="row">
+          <label>Job Offer / Package<input id="nrOffer" class="input" required placeholder="e.g. ₹6 LPA + benefits"></label>
+          <label>Location<input id="nrLocation" class="input" required placeholder="e.g. Chennai / Hybrid"></label>
+        </div>
+        <div class="row">
+          <label>Eligibility<input id="nrEligibility" class="input" required placeholder="e.g. 60%+, no active arrears"></label>
+          <label>Application Due Date<input id="nrDueDate" class="input" type="date"></label>
+        </div>
+        <label>Recruitment Message<textarea id="nrMessage" class="input" rows="3" required placeholder="New recruitment offer from this company. Apply through CareerBridge."></textarea></label>
+        <label>Application Link (optional)<input id="nrLink" class="input" type="url" placeholder="https://company.example/jobs"></label>
+        <button class="btn primary" id="recruitmentSaveBtn" style="width:100%;margin-top:8px" type="submit">Publish New Recruitment</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 11. Admin: Add Internship Modal -->
+  <div class="modal" id="addInternshipModal">
+    <div class="modalbox">
+      <button class="btn" style="float:right;padding:6px 12px" onclick="closeModal('addInternshipModal')">✕</button>
+      <h2>➕ Post New Internship</h2>
+      <form onsubmit="adminAddInternship(event)">
+        <div class="row">
+          <label>Internship Title<input id="niTitle" class="input" required placeholder="e.g. Cloud AI Engineering Intern"></label>
+          <label>Company Name<input id="niCompany" class="input" required placeholder="e.g. Google Cloud"></label>
+        </div>
+        <div class="row">
+          <label>Location<input id="niLoc" class="input" required placeholder="e.g. Remote / Hybrid"></label>
+          <label>Stipend<input id="niStipend" class="input" required placeholder="e.g. ₹20,000 / month"></label>
+        </div>
+        <div class="row">
+          <label>Target Course Specification
+            <select id="niSpec" class="input">
+              <option value="All Branches">All Branches</option>
+              <option value="CSE/IT">CSE & IT</option>
+              <option value="ECE">ECE / Circuit</option>
+              <option value="EEE">EEE</option>
+              <option value="MECH/CIVIL">Mechanical & Civil</option>
+              <option value="BCA/MCA">BCA / MCA</option>
+              <option value="MBA">MBA / Management</option>
+              <option value="Commerce">B.Com / Commerce</option>
+            </select>
+          </label>
+          <label>Application Due Date (Deadline)
+            <input id="niDueDate" class="input" type="date" required>
+          </label>
+        </div>
+        <label>Skills Required<input id="niSkills" class="input" required placeholder="e.g. Python, Docker, APIs, Cloud"></label>
+        <button class="btn primary" style="width:100%" type="submit">Publish Internship</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 12. Admin: Add VAC Modal -->
+  <div class="modal" id="addVacModal">
+    <div class="modalbox">
+      <button class="btn" style="float:right;padding:6px 12px" onclick="closeModal('addVacModal')">✕</button>
+      <h2>➕ Add Value Added Course (VAC)</h2>
+      <form onsubmit="adminAddVac(event)">
+        <label>Course Title<input id="nvTitle" class="input" required placeholder="e.g. AWS Certified Solutions Architect"></label>
+        <div class="row">
+          <label>Platform / Academy<input id="nvPlatform" class="input" required placeholder="e.g. AWS Skill Builder"></label>
+          <label>Course Type
+            <select id="nvType" class="input" onchange="document.getElementById('nvPrice').value=this.value==='Free'?'FREE':'₹499'">
+              <option value="Free">🟢 Free Course</option>
+              <option value="Paid">💎 Paid / Certified Course</option>
+            </select>
+          </label>
+        </div>
+        <div class="row">
+          <label>Price Badge / Fee<input id="nvPrice" class="input" required value="FREE"></label>
+          <label>Target Course Specification
+            <select id="nvSpec" class="input">
+              <option value="All Branches">All Branches</option>
+              <option value="CSE/IT">CSE & IT</option>
+              <option value="ECE">ECE / Circuit</option>
+              <option value="EEE">EEE</option>
+              <option value="MECH/CIVIL">Mechanical & Civil</option>
+              <option value="BCA/MCA">BCA / MCA</option>
+              <option value="MBA">MBA / Management</option>
+              <option value="Commerce">B.Com / Commerce</option>
+            </select>
+          </label>
+        </div>
+        <label>Course URL<input id="nvUrl" class="input" type="url" required placeholder="https://..."></label>
+        <button class="btn primary" style="width:100%" type="submit">Save VAC Course</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC MODULES -->
+  <script src="js/api.js"></script>
+  <script src="js/student.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>
